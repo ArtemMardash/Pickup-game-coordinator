@@ -1,0 +1,140 @@
+.nav {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: var(--nav-height);
+  padding: 0 28px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.logo {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+  color: var(--white);
+  font-size: 17px;
+  line-height: 1;
+}
+
+.brandName {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 12px;
+}
+
+.tab {
+  padding: 7px 16px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  transition:
+    background 140ms ease,
+    color 140ms ease;
+}
+
+.tab:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.tabActive,
+.tabActive:hover {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.search {
+  position: relative;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.searchField {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 480px;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.searchField:focus-within {
+  border-color: var(--accent);
+  background: var(--white);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+.searchIcon {
+  flex-shrink: 0;
+  color: var(--text-subtle);
+}
+
+.searchInput {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  outline: none;
+}
+
+.searchInput::placeholder {
+  color: var(--text-subtle);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--white);
+  border-radius: 50%;
+  background: var(--accent-strong);
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 0 1px var(--border);
+}

@@ -1,0 +1,40 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.neutral {
+  background: var(--surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.sport {
+  background: var(--white);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.skill {
+  background: #f0f9ff;
+  color: var(--accent-strong);
+  border: 1px solid #bae6fd;
+}
+
+.open {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.full {
+  background: var(--danger-soft);
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}

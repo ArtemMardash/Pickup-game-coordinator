@@ -1,6 +1,6 @@
 # Pickup Game Coordinator
 
-A React + TypeScript app built with Vite.
+Dashboard for discovering, organizing, and joining local pickup sports games.
 
 ## Getting started
 
@@ -9,29 +9,32 @@ npm install
 npm run dev
 ```
 
-Dev server runs at http://localhost:5173.
-
-## Scripts
+Runs at http://localhost:5173.
 
 | Command | Description |
 | --- | --- |
-| `npm run dev` | Start the dev server with HMR |
-| `npm run build` | Type-check and build for production into `dist/` |
-| `npm run preview` | Serve the production build locally |
-| `npm run lint` | Run Oxlint |
+| `npm run dev` | Dev server with HMR |
+| `npm run build` | Type-check and build to `dist/` |
+| `npm run preview` | Serve the production build |
+| `npm run lint` | Oxlint |
 
-## Project structure
+## Structure
 
 ```
-index.html        HTML entry point
-src/main.tsx      React root
-src/App.tsx       App shell
-src/index.css     Global styles
-public/           Static assets served as-is
+src/App.tsx             App shell and split layout
+src/types.ts            Domain types and sport catalogue
+src/data/seed.ts        Sample games
+src/state/useGames.ts   Game data access
+src/lib/                Formatting and derived helpers
+src/components/         Feature components
+src/components/ui/      Button, Pill, Combobox, FillMeter
 ```
 
-## Tooling notes
+Plain CSS Modules over the tokens in `src/index.css`. No UI framework.
 
-- Uses `@vitejs/plugin-react` (Oxc-based transform).
-- The React Compiler is not enabled. See the [React Compiler docs](https://react.dev/learn/react-compiler/installation) to add it.
-- To enable type-aware lint rules, install `oxlint-tsgolint` and set `options.typeAware` to `true` in `.oxlintrc.json`.
+## Not built yet
+
+- Search, filter, and sort render but do nothing
+- No persistence — seed data resets on refresh
+- The map is a placeholder illustration
+- Desktop only (1440px), no auth

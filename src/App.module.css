@@ -1,0 +1,68 @@
+.app {
+  min-height: 100%;
+  background: var(--surface);
+}
+
+.main {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: calc(var(--nav-height) + var(--filter-height) + 20px) 28px 28px;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* Column is not scrollable; only the card list inside it is. */
+.feedColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.feedPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: calc(100vh - var(--nav-height) - var(--filter-height) - 82px);
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+}
+
+.feedPanel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.feedPanel::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.mapPanel {
+  position: sticky;
+  top: calc(var(--nav-height) + var(--filter-height) + 20px);
+  height: calc(100vh - var(--nav-height) - var(--filter-height) - 48px);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.heading {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.count {
+  font-size: 13px;
+  color: var(--text-muted);
+}

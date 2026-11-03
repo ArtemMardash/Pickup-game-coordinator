@@ -1,0 +1,44 @@
+.bar {
+  position: fixed;
+  inset: var(--nav-height) 0 auto;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  height: var(--filter-height);
+  padding: 0 28px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 12px 0 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--white);
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 500;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease;
+}
+
+.filter:hover {
+  border-color: var(--border-strong);
+  background: var(--surface);
+}
+
+.chevron {
+  color: var(--text-subtle);
+  flex-shrink: 0;
+}

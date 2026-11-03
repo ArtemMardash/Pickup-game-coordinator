@@ -1,0 +1,53 @@
+.map {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: #e8f4fb;
+  isolation: isolate;
+}
+
+.grid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  color: #bcdcec;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 30px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(2, 132, 199, 0.18);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(3px);
+}
+
+.pin {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.subtitle {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
