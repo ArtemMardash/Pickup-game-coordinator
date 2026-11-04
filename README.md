@@ -18,6 +18,20 @@ Runs at http://localhost:5173.
 | `npm run preview` | Serve the production build |
 | `npm run lint` | Oxlint |
 
+## Backend
+
+FastAPI service in `backend/`. See [backend/README.md](backend/README.md).
+
+```bash
+cd backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements-dev.txt
+fastapi dev app/main.py
+```
+
+Runs at http://localhost:8000 (docs at `/docs`).
+
 ## Structure
 
 ```
