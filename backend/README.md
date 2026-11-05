@@ -25,3 +25,46 @@ Runs at http://localhost:8000. Interactive docs at http://localhost:8000/docs.
 app/main.py    FastAPI app, CORS, routes
 tests/         pytest tests
 ```
+## Database setup
+
+Local development uses Python 3.13 and PostgreSQL 17.
+
+Create a PostgreSQL login named `pug_app` and a database named `pug`
+owned by that login. Each developer uses their own local password.
+
+From the `backend` directory, copy the environment template:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Fill in `DB_PASSWORD` in `.env` with your local application's database
+password. Never commit `.env`.
+
+With the virtual environment activated, install dependencies and apply
+existing migrations:
+
+```powershell
+python -m pip install -r requirements-dev.txt
+python -m alembic upgrade head
+```
+
+Database models share `Base` from `app.database`. Routes use `get_db`
+from the same module to obtain a database session.
+
+Import new models in `alembic/env.py` before generating migrations:
+
+```powershell
+python -m alembic revision --autogenerate -m "Describe the schema change"
+```
+
+Review the generated migration before applying it:
+
+```powershell
+python -m alembic upgrade head
+python -m alembic check
+python -m pytest
+```
+
+The initial foundation contains no application tables. The users table
+will be added in a subsequent migration.
