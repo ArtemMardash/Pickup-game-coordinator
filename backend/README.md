@@ -110,3 +110,66 @@ python -m pytest -v
 
 Registration tests use the configured local database and roll back their
 changes after each test.
+
+## Login and authenticated requests
+
+Configure these values in your local `.env`:
+
+```dotenv
+JWT_SECRET_KEY=your-generated-secret
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+```
+
+Generate a signing key with:
+
+```powershell
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+Never commit the signing key. Each developer uses their own local key.
+
+### Login
+
+`POST /api/auth/login` accepts JSON:
+
+```json
+{
+  "email": "player@example.com",
+  "password": "ExamplePass123!"
+}
+```
+
+Successful login returns `200` with:
+- `access_token`: signed JWT
+- `token_type`: `bearer`
+- `expires_in`: token lifetime in seconds
+
+Email matching is case-insensitive. Incorrect credentials return `401`.
+Temporary login lockout is excluded from the MVP.
+
+### Current profile
+
+`GET /api/users/me` requires:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+Returns the authenticated user's profile without a password or hash.
+Missing, invalid, or expired tokens return `401`.
+
+In Swagger's Authorize dialog, paste only the token value.
+
+### Backend integration
+
+Protected routes can import `CurrentUser` from `app.deps` and declare
+a `current_user: CurrentUser` parameter. This provides the authenticated
+User model; `current_user.id` is its UUID.
+
+Game routes must separately enforce ownership and participation rules.
+
+### Logout behavior
+
+The client logs out by clearing its token and stopping authenticated
+requests. Previously issued tokens remain valid until expiration;
+server-side token revocation and refresh tokens are not implemented.
