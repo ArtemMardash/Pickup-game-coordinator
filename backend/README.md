@@ -66,5 +66,9 @@ python -m alembic check
 python -m pytest
 ```
 
-The initial foundation contains no application tables. The users table
-will be added in a subsequent migration.
+
+The users table stores a UUID, username, email, password hash,
+non-critical notification preference, and creation timestamp.
+Usernames and emails are case-insensitively unique.
+
+Temporary login lockout is excluded from the MVP.
