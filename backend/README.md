@@ -72,3 +72,41 @@ non-critical notification preference, and creation timestamp.
 Usernames and emails are case-insensitively unique.
 
 Temporary login lockout is excluded from the MVP.
+
+## Registration
+
+`POST /api/auth/register` accepts JSON:
+
+```json
+{
+  "username": "example_player",
+  "email": "player@example.com",
+  "password": "ExamplePass123!"
+}
+```
+
+- Username: 3–50 characters after trimming surrounding whitespace.
+- Email: valid format, up to 254 characters.
+- Password: at least 8 characters and no more than 72 UTF-8 bytes.
+- Usernames and emails are case-insensitively unique.
+- Passwords are hashed with bcrypt.
+
+Responses:
+- `201`: account created; returns ID, username, email, notification
+  preference, and creation timestamp.
+- `409`: username or email already in use.
+- `422`: invalid input.
+
+Responses exclude passwords and password hashes. Validation errors omit
+submitted input values. Registration does not log the user in.
+
+### Tests
+
+With PostgreSQL running, `.env` configured, and migrations applied:
+
+```powershell
+python -m pytest -v
+```
+
+Registration tests use the configured local database and roll back their
+changes after each test.

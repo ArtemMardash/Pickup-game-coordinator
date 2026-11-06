@@ -1,7 +1,33 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+
+from app.routers.auth import router as auth_router
 
 app = FastAPI(title="Pickup Game Coordinator API")
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    request,
+    exc: RequestValidationError,
+) -> JSONResponse:
+    errors = [
+        {
+            "loc": error["loc"],
+            "msg": error["msg"],
+            "type": error["type"],
+        }
+        for error in exc.errors()
+    ]
+
+    return JSONResponse(
+        status_code=422,
+        content={"detail": errors},
+    )
+
+
+app.include_router(auth_router)
 
 # Allow the Vite dev server (npm run dev) to call the API from the browser.
 app.add_middleware(
