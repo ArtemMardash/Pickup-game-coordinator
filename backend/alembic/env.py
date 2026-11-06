@@ -4,6 +4,7 @@ from alembic import context
 
 from app.database import Base, database_url, engine
 
+from app.models.user import User  # noqa: F401
 
 config = context.config
 
