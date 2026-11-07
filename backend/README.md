@@ -1,14 +1,20 @@
 # Backend
 
-FastAPI service for Pickup Game Coordinator.
+FastAPI service for Pickup Game Coordinator. For the full-stack setup (database,
+backend, and frontend together), see the [root README](../README.md).
 
 ## Getting started
 
-```bash
-cd backend
+Run from the `backend` directory. Local development uses Python 3.13 and
+PostgreSQL 17 (via Docker).
+
+```powershell
+Copy-Item .env.example .env       # macOS/Linux: cp .env.example .env
+docker compose up -d              # PostgreSQL on 127.0.0.1:5432
 python -m venv .venv
-.venv\Scripts\activate          # macOS/Linux: source .venv/bin/activate
+.venv\Scripts\activate            # macOS/Linux: source .venv/bin/activate
 pip install -r requirements-dev.txt
+alembic upgrade head
 fastapi dev app/main.py
 ```
 
@@ -17,55 +23,70 @@ Runs at http://localhost:8000. Interactive docs at http://localhost:8000/docs.
 | Command | Description |
 | --- | --- |
 | `fastapi dev app/main.py` | Dev server with auto-reload |
+| `alembic upgrade head` | Apply database migrations |
+| `alembic check` | Verify models and migrations are in sync |
 | `pytest` | Run tests |
+| `docker compose stop` | Stop the database (data is kept) |
+
+Use the `alembic` command directly. `python -m alembic` does not work.
+
+## Configuration
+
+Settings are read from `backend/.env` (see `.env.example`). Never commit `.env`.
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `DB_HOST` | `127.0.0.1` | Database host. Prefer the IP over `localhost`, which can resolve to IPv6 and hang against Docker's IPv4-only port |
+| `DB_PORT` | `5432` | Database port (also the host port Docker publishes) |
+| `DB_NAME` | `pug` | Database name |
+| `DB_USER` | `pug_app` | Database login |
+| `DB_PASSWORD` | none (required) | Database password. The example value is dev-only |
+| `JWT_SECRET_KEY` | none (required) | Signing key, at least 32 characters (see "Login" below) |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | `30` | JWT lifetime |
+| `CORS_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173` | Comma-separated frontend origins |
+
+`docker compose` creates the `pug_app` login and the `pug` database from these
+values the first time it starts. The password is only applied at that point; if
+you change it later, either update it inside Postgres or reset with
+`docker compose down -v` (deletes local data).
+
+Using your own PostgreSQL instead of Docker: create a login named `pug_app`
+and a database named `pug` owned by that login, and put its credentials in
+`.env`.
 
 ## Structure
 
 ```
-app/main.py    FastAPI app, CORS, routes
-tests/         pytest tests
-```
-## Database setup
-
-Local development uses Python 3.13 and PostgreSQL 17.
-
-Create a PostgreSQL login named `pug_app` and a database named `pug`
-owned by that login. Each developer uses their own local password.
-
-From the `backend` directory, copy the environment template:
-
-```powershell
-Copy-Item .env.example .env
+app/main.py            FastAPI app, CORS, routers
+app/config.py          Settings loaded from .env
+app/database.py        Engine, session, Base, get_db
+app/deps.py            get_current_user / CurrentUser
+app/models/            User, Game, GameParticipant
+app/routers/           auth, users, games
+app/schemas/           Request / response models
+alembic/               Migrations
+docker-compose.yml     Local PostgreSQL
+tests/                 pytest tests
 ```
 
-Fill in `DB_PASSWORD` in `.env` with your local application's database
-password. Never commit `.env`.
+## Migrations
 
-With the virtual environment activated, install dependencies and apply
-existing migrations:
-
-```powershell
-python -m pip install -r requirements-dev.txt
-python -m alembic upgrade head
-```
-
-Database models share `Base` from `app.database`. Routes use `get_db`
-from the same module to obtain a database session.
+Database models share `Base` from `app.database`. Routes use `get_db` from the
+same module to obtain a database session.
 
 Import new models in `alembic/env.py` before generating migrations:
 
 ```powershell
-python -m alembic revision --autogenerate -m "Describe the schema change"
+alembic revision --autogenerate -m "Describe the schema change"
 ```
 
 Review the generated migration before applying it:
 
 ```powershell
-python -m alembic upgrade head
-python -m alembic check
-python -m pytest
+alembic upgrade head
+alembic check
+pytest
 ```
-
 
 The users table stores a UUID, username, email, password hash,
 non-critical notification preference, and creation timestamp.
@@ -173,3 +194,43 @@ Game routes must separately enforce ownership and participation rules.
 The client logs out by clearing its token and stopping authenticated
 requests. Previously issued tokens remain valid until expiration;
 server-side token revocation and refresh tokens are not implemented.
+
+## Games
+
+All game endpoints require `Authorization: Bearer <token>`.
+
+| Method and path | Who | Description |
+| --- | --- | --- |
+| `GET /api/games` | any user | Upcoming and in-progress games (list and map share this query) |
+| `POST /api/games` | any user | Create a game; the creator becomes the organizer and is added to the roster |
+| `GET /api/games/{id}` | any user | Game details with participants |
+| `PATCH /api/games/{id}` | organizer | Edit; only the fields sent change |
+| `DELETE /api/games/{id}` | organizer | Cancel / end the game; the roster is deleted with it |
+| `POST /api/games/{id}/join` | any user | Take a spot |
+| `DELETE /api/games/{id}/participants/me` | player | Leave (the organizer cannot leave; delete the game instead) |
+| `DELETE /api/games/{id}/participants/{user_id}` | organizer | Remove another player |
+| `GET /api/games/{id}/players` | any user | Roster |
+
+Rules: a game lasts at most 6 hours, `end_time` must be after `start_time` and
+in the future, timestamps need a timezone offset, and `capacity` (which includes
+the organizer) can never be lower than the players already joined. Joining locks
+the game row (`SELECT ... FOR UPDATE`), so when two people tap Join for the last
+spot exactly one gets in.
+
+`GET /api/games` query parameters (every selected filter must match; repeat a
+parameter to allow several values, e.g. `skill_level=beginner&skill_level=advanced`):
+`game_name`, `skill_level`, `language`, `q` (text in the location),
+`lat` + `lng` + `radius_km` (distance; needs all three), `is_online`,
+`has_spots`, `joined` (only my games), `sort` (`start_time` default, `game_name`,
+`skill_level`), `limit`, `offset`. Ties are broken by start time, then id.
+Ended games are never returned and are deleted the next time the list is read.
+
+Errors look like `{"detail": {"status": "error", "reason": "gameFull", "message": "..."}}`.
+Reasons: `gameNotFound` (404), `gameTerminated` (410), `notOrganizer` (403),
+`invalidGameDetails` / `invalidFilter` (422), `gameFull`, `alreadyJoined`,
+`notJoined`, `organizerCannotLeave` (409). Request validation errors from
+FastAPI itself (wrong types, missing fields) use the standard 422 `detail` list.
+
+Coordinates (`latitude`, `longitude`) are optional on create and are sent by the
+client (e.g. from Google Places). Changing `location` without new coordinates
+clears the old ones so the pin never points at the wrong place.

@@ -1,13 +1,15 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from app.config import settings
 from app.routers.auth import router as auth_router
-
+from app.routers.games import router as games_router
 from app.routers.users import router as users_router
 
 app = FastAPI(title="Pickup Game Coordinator API")
+
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(
@@ -31,10 +33,13 @@ async def validation_exception_handler(
 
 app.include_router(auth_router)
 app.include_router(users_router)
-# Allow the Vite dev server (npm run dev) to call the API from the browser.
+app.include_router(games_router)
+
+# Allow the frontend (Vite dev server by default) to call the API from the
+# browser. Configure the allowed origins with CORS_ORIGINS in backend/.env.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=settings.cors_origin_list,
     allow_methods=["*"],
     allow_headers=["*"],
 )
