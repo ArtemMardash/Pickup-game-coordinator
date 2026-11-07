@@ -10,6 +10,8 @@ PostgreSQL 17 (via Docker).
 
 ```powershell
 Copy-Item .env.example .env       # macOS/Linux: cp .env.example .env
+python -c "import secrets; print(secrets.token_hex(32))"
+                                  # paste the output as JWT_SECRET_KEY in .env
 docker compose up -d              # PostgreSQL on 127.0.0.1:5432
 python -m venv .venv
 .venv\Scripts\activate            # macOS/Linux: source .venv/bin/activate
@@ -230,6 +232,12 @@ Reasons: `gameNotFound` (404), `gameTerminated` (410), `notOrganizer` (403),
 `invalidGameDetails` / `invalidFilter` (422), `gameFull`, `alreadyJoined`,
 `notJoined`, `organizerCannotLeave` (409). Request validation errors from
 FastAPI itself (wrong types, missing fields) use the standard 422 `detail` list.
+
+Do not add a trailing slash (`/api/games/`): the server redirects it and
+browsers drop the `Authorization` header on the redirect.
+
+The frontend's typed copy of these endpoints is `../src/lib/endpoints.ts`;
+update it whenever an endpoint or response changes.
 
 Coordinates (`latitude`, `longitude`) are optional on create and are sent by the
 client (e.g. from Google Places). Changing `location` without new coordinates
