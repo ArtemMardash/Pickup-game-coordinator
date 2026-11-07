@@ -234,3 +234,28 @@ FastAPI itself (wrong types, missing fields) use the standard 422 `detail` list.
 Coordinates (`latitude`, `longitude`) are optional on create and are sent by the
 client (e.g. from Google Places). Changing `location` without new coordinates
 clears the old ones so the pin never points at the wrong place.
+
+## Profile updates and notification preferences
+
+`PATCH /api/users/me` requires a bearer token and accepts either or both:
+
+```json
+{
+  "email": "updated@example.com",
+  "notify_non_critical": false
+}
+```
+
+- Only the authenticated account is updated.
+- Omitted fields remain unchanged.
+- Email changes preserve the account UUID.
+- Existing tokens remain valid; future logins use the updated email.
+- Notification preferences require JSON booleans (`true` or `false`).
+- Empty updates, null values, and unsupported fields return `422`.
+- An email belonging to another account returns `409`, with neither
+  field changed.
+- Successful updates return `200` with the updated profile.
+
+The notification preference applies to optional notifications.
+Critical cancellation, time-change, and location-change emails will
+remain mandatory when the email service is implemented.

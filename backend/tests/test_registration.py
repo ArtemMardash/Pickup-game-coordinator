@@ -335,3 +335,188 @@ def test_profile_rejects_invalid_token_claims(
         "detail": "Could not validate credentials",
     }
     assert response.headers["WWW-Authenticate"] == "Bearer"
+
+@pytest.fixture
+def authenticated_account(registration_context, registration_payload):
+    client, session = registration_context
+
+    registered = client.post(
+        "/api/auth/register",
+        json=registration_payload,
+    )
+    assert registered.status_code == 201
+
+    login = client.post(
+        "/api/auth/login",
+        json={
+            "email": registration_payload["email"],
+            "password": registration_payload["password"],
+        },
+    )
+    assert login.status_code == 200
+
+    headers = {
+        "Authorization": f"Bearer {login.json()['access_token']}",
+    }
+
+    return client, session, registered.json(), headers
+
+def test_email_update_preserves_identity_and_other_accounts(
+    authenticated_account,
+    registration_payload,
+):
+    client, session, original, headers = authenticated_account
+
+    other_payload = {
+        "username": f"other_{uuid4().hex}",
+        "email": f"other_{uuid4().hex}@example.com",
+        "password": "OtherPassword123!",
+    }
+    other = client.post("/api/auth/register", json=other_payload)
+    assert other.status_code == 201
+
+    new_email = f"updated_{uuid4().hex}@example.com"
+
+    response = client.patch(
+        "/api/users/me",
+        json={"email": new_email},
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+    expected = {**original, "email": new_email}
+    assert response.json() == expected
+
+    # The original token still identifies the same account.
+    profile = client.get("/api/users/me", headers=headers)
+    assert profile.status_code == 200
+    assert profile.json() == expected
+
+    # Verify the other account was not changed.
+    session.expire_all()
+    other_user = session.get(User, UUID(other.json()["id"]))
+    assert other_user.email == other_payload["email"]
+    assert other_user.notify_non_critical is True
+
+    # Future logins use the updated email.
+    new_login = client.post(
+        "/api/auth/login",
+        json={
+            "email": new_email,
+            "password": registration_payload["password"],
+        },
+    )
+    assert new_login.status_code == 200
+
+    old_login = client.post(
+        "/api/auth/login",
+        json={
+            "email": registration_payload["email"],
+            "password": registration_payload["password"],
+        },
+    )
+    assert old_login.status_code == 401
+
+
+@pytest.mark.parametrize("enabled", [False, True])
+def test_notification_preference_update(
+    authenticated_account,
+    enabled,
+):
+    client, _, original, headers = authenticated_account
+
+    # Start with the opposite value to verify an actual change.
+    initial = client.patch(
+        "/api/users/me",
+        json={"notify_non_critical": not enabled},
+        headers=headers,
+    )
+    assert initial.status_code == 200
+
+    response = client.patch(
+        "/api/users/me",
+        json={"notify_non_critical": enabled},
+        headers=headers,
+    )
+
+    expected = {**original, "notify_non_critical": enabled}
+    assert response.status_code == 200
+    assert response.json() == expected
+    assert client.get(
+        "/api/users/me",
+        headers=headers,
+    ).json() == expected
+
+
+def test_duplicate_email_update_is_atomic(authenticated_account):
+    client, _, original, headers = authenticated_account
+
+    other_payload = {
+        "username": f"other_{uuid4().hex}",
+        "email": f"other_{uuid4().hex}@example.com",
+        "password": "OtherPassword123!",
+    }
+    assert client.post(
+        "/api/auth/register",
+        json=other_payload,
+    ).status_code == 201
+
+    response = client.patch(
+        "/api/users/me",
+        json={
+            "email": other_payload["email"].upper(),
+            "notify_non_critical": False,
+        },
+        headers=headers,
+    )
+
+    assert response.status_code == 409
+    assert response.json() == {"detail": "Email is already in use"}
+
+    # Neither field should change when the update fails.
+    profile = client.get("/api/users/me", headers=headers)
+    assert profile.status_code == 200
+    assert profile.json() == original
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {},
+        {"email": "invalid-email"},
+        {"email": None},
+        {"notify_non_critical": None},
+        {"notify_non_critical": "false"},
+        {"id": str(uuid4())},
+        {"username": "someone_else"},
+        {"password_hash": "replacement"},
+    ],
+)
+def test_invalid_profile_update_leaves_account_unchanged(
+    authenticated_account,
+    changes,
+):
+    client, _, original, headers = authenticated_account
+
+    response = client.patch(
+        "/api/users/me",
+        json=changes,
+        headers=headers,
+    )
+
+    assert response.status_code == 422
+    assert client.get(
+        "/api/users/me",
+        headers=headers,
+    ).json() == original
+
+
+def test_profile_update_requires_authentication(registration_context):
+    client, _ = registration_context
+
+    response = client.patch(
+        "/api/users/me",
+        json={"notify_non_critical": False},
+    )
+
+    assert response.status_code == 401
