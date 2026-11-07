@@ -26,3 +26,12 @@ dist-ssr
 # Local planning docs
 PLAN.md
 SPEC.md
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+.env.*
+!.env.example
