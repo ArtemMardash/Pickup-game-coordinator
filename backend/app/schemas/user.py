@@ -3,6 +3,10 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
+from typing import Self
+
+from pydantic import StrictBool, model_validator
+
 
 class UserCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -34,3 +38,20 @@ class UserRead(BaseModel):
     email: EmailStr
     notify_non_critical: bool
     created_at: datetime
+
+class UserUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    email: EmailStr | None = Field(default=None, max_length=254)
+    notify_non_critical: StrictBool | None = None
+
+    @model_validator(mode="after")
+    def validate_update(self) -> Self:
+        if not self.model_fields_set:
+            raise ValueError("Provide at least one field to update")
+
+        for field in self.model_fields_set:
+            if getattr(self, field) is None:
+                raise ValueError(f"{field} must not be null")
+
+        return self
