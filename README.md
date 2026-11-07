@@ -21,7 +21,9 @@ use `cp` instead of `Copy-Item` and `source .venv/bin/activate` instead of
 
 ```powershell
 cd backend
-Copy-Item .env.example .env          # database defaults work for local development
+Copy-Item .env.example .env          # then fill in the two secrets below
+python -c "import secrets; print(secrets.token_urlsafe(16))"
+                                     # paste the output as DB_PASSWORD in backend/.env
 python -c "import secrets; print(secrets.token_hex(32))"
                                      # paste the output as JWT_SECRET_KEY in backend/.env
 docker compose up -d                 # starts PostgreSQL on 127.0.0.1:5432
@@ -33,8 +35,10 @@ alembic upgrade head                 # applies database migrations
 fastapi dev app/main.py              # http://localhost:8000
 ```
 
-`JWT_SECRET_KEY` has no default: the backend refuses to start without a key of
-at least 32 characters. Every developer generates their own.
+`DB_PASSWORD` and `JWT_SECRET_KEY` have no defaults, so no secret is stored in
+the repository. `docker compose` and the backend refuse to start without them,
+and the JWT key must be at least 32 characters. Every developer generates their
+own; both live only in your gitignored `backend/.env`.
 
 API docs are at http://localhost:8000/docs and a health check at
 http://localhost:8000/api/health.
@@ -76,7 +80,7 @@ Both `.env` files are gitignored. Copy the `.env.example` next to each one.
 | File | Variable | Purpose |
 | --- | --- | --- |
 | `backend/.env` | `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` | Database connection (defaults match `docker-compose.yml`) |
-| `backend/.env` | `DB_PASSWORD` | Database password. The example value is dev-only; `docker compose` uses it to create the database the first time it starts |
+| `backend/.env` | `DB_PASSWORD` | Database password (required, choose your own; generate it as shown in the quick start). `docker compose` uses it to create the database the first time it starts |
 | `backend/.env` | `JWT_SECRET_KEY` | Signing key for login tokens (required, 32+ characters). Generate it as shown in the quick start; never commit it |
 | `backend/.env` | `ACCESS_TOKEN_EXPIRE_MINUTES` | Login token lifetime (default 30) |
 | `backend/.env` | `CORS_ORIGINS` | Comma-separated frontend origins the API accepts |

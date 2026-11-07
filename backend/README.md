@@ -10,6 +10,8 @@ PostgreSQL 17 (via Docker).
 
 ```powershell
 Copy-Item .env.example .env       # macOS/Linux: cp .env.example .env
+python -c "import secrets; print(secrets.token_urlsafe(16))"
+                                  # paste the output as DB_PASSWORD in .env
 python -c "import secrets; print(secrets.token_hex(32))"
                                   # paste the output as JWT_SECRET_KEY in .env
 docker compose up -d              # PostgreSQL on 127.0.0.1:5432
@@ -42,7 +44,7 @@ Settings are read from `backend/.env` (see `.env.example`). Never commit `.env`.
 | `DB_PORT` | `5432` | Database port (also the host port Docker publishes) |
 | `DB_NAME` | `pug` | Database name |
 | `DB_USER` | `pug_app` | Database login |
-| `DB_PASSWORD` | none (required) | Database password. The example value is dev-only |
+| `DB_PASSWORD` | none (required) | Database password. Choose your own; it is never stored in the repo |
 | `JWT_SECRET_KEY` | none (required) | Signing key, at least 32 characters (see "Login" below) |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | `30` | JWT lifetime |
 | `CORS_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173` | Comma-separated frontend origins |
