@@ -1,16 +1,22 @@
 import { formatStart } from '../lib/format'
-import { hasJoined } from '../lib/game'
-import type { Game } from '../types'
+import type { GameSummary } from '../lib/endpoints'
+import { sportEmoji } from '../lib/sport'
 import { Button } from './ui/Button'
 import { FillMeter } from './ui/FillMeter'
 import { Pill } from './ui/Pill'
 import styles from './GameCard.module.css'
 
+const SKILL_LABEL: Record<string, string> = {
+  beginner: 'Beginner',
+  intermediate: 'Intermediate',
+  advanced: 'Advanced',
+}
+
 interface GameCardProps {
-  game: Game
-  /** When provided, the whole card becomes a button that opens the detail view. */
+  game: GameSummary
+  /** True when the current user is on this game's roster. */
+  joined?: boolean
   onOpen?: () => void
-  /** When provided, the card renders an Edit action and stops being clickable. */
   onEdit?: () => void
 }
 
@@ -57,22 +63,23 @@ function PinIcon() {
   )
 }
 
-export function GameCard({ game, onOpen, onEdit }: GameCardProps) {
+export function GameCard({ game, joined = false, onOpen, onEdit }: GameCardProps) {
   const editable = Boolean(onEdit)
+  const emoji = sportEmoji(game.game_name)
 
   const body = (
     <>
       <div className={styles.topRow}>
         <Pill tone="sport">
-          <span aria-hidden="true">{game.sport.emoji}</span>
-          {game.sport.label}
+          <span aria-hidden="true">{emoji}</span>
+          {game.game_name}
         </Pill>
-        <Pill tone="skill">{game.skillLevel}</Pill>
+        <Pill tone="skill">{SKILL_LABEL[game.skill_level] ?? game.skill_level}</Pill>
         <span className={styles.meter}>
           <FillMeter
-            joined={game.players.length}
+            joined={game.players_joined}
             capacity={game.capacity}
-            youJoined={hasJoined(game)}
+            youJoined={joined}
           />
         </span>
       </div>
@@ -82,7 +89,7 @@ export function GameCard({ game, onOpen, onEdit }: GameCardProps) {
       <div className={styles.meta}>
         <span className={styles.metaRow}>
           <CalendarIcon />
-          {formatStart(game.startAt)}
+          {formatStart(game.start_time)}
         </span>
         <span className={styles.metaRow}>
           <PinIcon />
@@ -107,7 +114,7 @@ export function GameCard({ game, onOpen, onEdit }: GameCardProps) {
   )
 
   if (editable || !onOpen) {
-    return <article className={`${styles.card} ${styles.editing}`}>{body}</article>
+    return <article className={styles.card}>{body}</article>
   }
 
   return (

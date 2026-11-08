@@ -1,31 +1,14 @@
 export type Tab = 'explore' | 'my-games'
 
-export type SkillLevel = 'Beginner' | 'Experienced'
-
-export const SKILL_LEVELS: SkillLevel[] = ['Beginner', 'Experienced']
-
-export type Language =
-  | 'English'
-  | 'Spanish'
-  | 'Mandarin'
-  | 'French'
-  | 'Portuguese'
-  | 'Other'
-
-export const LANGUAGES: Language[] = [
-  'English',
-  'Spanish',
-  'Mandarin',
-  'French',
-  'Portuguese',
-  'Other',
-]
-
 export interface SportInfo {
   label: string
   emoji: string
 }
 
+/**
+ * Emoji belongs to the sport, not the post, so the same sport always renders
+ * identically and filters stay deduplicated.
+ */
 export const SPORTS: SportInfo[] = [
   { label: 'Archery', emoji: '🏹' },
   { label: 'Badminton', emoji: '🏸' },
@@ -71,34 +54,12 @@ export const SPORTS: SportInfo[] = [
   { label: 'Yoga', emoji: '🧘' },
 ]
 
-
-export interface Player {
-  id: string
-  name: string
-  initials: string
-  color: string
-}
-
-export interface Game {
-  id: string
-  sport: SportInfo
-  title: string
-  startAt: string
-  endAt: string
-  location: string
-  skillLevel: SkillLevel
-  language: Language
-  /** Counts joiners only — the host does not occupy a slot. */
-  capacity: number
-  description: string
-  hostId: string
-  players: Player[]
-}
-
-/** Stands in for the signed-in player until authentication exists. */
-export const CURRENT_USER: Player = {
-  id: 'user-me',
-  name: 'Jane Doe',
-  initials: 'JD',
-  color: '#0284C7',
-}
+/** Languages offered in the create/edit form. */
+export const LANGUAGES = [
+  'English',
+  'Spanish',
+  'Mandarin',
+  'French',
+  'Portuguese',
+  'Other',
+]

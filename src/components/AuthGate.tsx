@@ -123,11 +123,6 @@ export function AuthGate() {
             {isRegister ? 'Sign in' : 'Create one'}
           </button>
         </p>
-
-        <p className={styles.note}>
-          Local development: auth is stubbed, so any email and an 8+ character
-          password will sign you in. No request reaches the backend yet.
-        </p>
       </div>
     </div>
   )

@@ -1,5 +1,6 @@
 import { formatRange } from '../lib/format'
-import type { GameSummary } from '../lib/endpoints'
+import { sportEmoji } from '../lib/sport'
+import type { GameDetail as GameDetailData } from '../lib/endpoints'
 import { Button } from './ui/Button'
 import { Pill } from './ui/Pill'
 import styles from './GameDetail.module.css'
@@ -14,8 +15,7 @@ const SKILL_LABEL: Record<string, string> = {
 export type JoinState = 'can-join' | 'joined' | 'full' | 'organizer' | 'pending'
 
 interface GameDetailProps {
-  game: GameSummary
-  sportEmoji?: string
+  game: GameDetailData
   joinedCount: number
   joinState: JoinState
   description?: string | null
@@ -109,7 +109,6 @@ function ActionButton({
 
 export function GameDetail({
   game,
-  sportEmoji,
   joinedCount,
   joinState,
   description,
@@ -119,6 +118,7 @@ export function GameDetail({
   onDelete,
 }: GameDetailProps) {
   const full = joinState === 'full'
+  const emoji = sportEmoji(game.game_name)
 
   return (
     <article className={styles.detail}>
@@ -131,7 +131,7 @@ export function GameDetail({
 
       <div className={styles.tags}>
         <Pill tone="sport">
-          {sportEmoji && <span aria-hidden="true">{sportEmoji}</span>}
+          <span aria-hidden="true">{emoji}</span>
           {game.game_name}
         </Pill>
         <Pill tone="skill">{SKILL_LABEL[game.skill_level] ?? game.skill_level}</Pill>
