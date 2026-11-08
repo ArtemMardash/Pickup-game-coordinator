@@ -1,4 +1,4 @@
-import { CURRENT_USER } from '../types'
+import { useAuth } from '../state/authContext'
 import type { Tab } from '../types'
 import { Button } from './ui/Button'
 import styles from './TopNav.module.css'
@@ -9,7 +9,19 @@ interface TopNavProps {
   onCreatePost: () => void
 }
 
+/** Two letters, e.g. "jerry" → "JE". */
+function initialsOf(name: string): string {
+  const cleaned = name.trim()
+  if (!cleaned) return '?'
+  const parts = cleaned.split(/[\s._-]+/).filter(Boolean)
+  if (parts.length >= 2) {
+    return (parts[0]![0]! + parts[1]![0]!).toUpperCase()
+  }
+  return cleaned.slice(0, 2).toUpperCase()
+}
+
 export function TopNav({ activeTab, onTabChange, onCreatePost }: TopNavProps) {
+  const { user, logout } = useAuth()
   return (
     <header className={styles.nav}>
       <div className={styles.brand}>
@@ -67,9 +79,12 @@ export function TopNav({ activeTab, onTabChange, onCreatePost }: TopNavProps) {
 
       <div className={styles.actions}>
         <Button onClick={onCreatePost}>+ Create Post</Button>
-        <span className={styles.avatar} title={CURRENT_USER.name}>
-          {CURRENT_USER.initials}
+        <span className={styles.avatar} title={user?.username}>
+          {user ? initialsOf(user.username) : '?'}
         </span>
+        <button type="button" className={styles.logout} onClick={logout}>
+          Sign out
+        </button>
       </div>
     </header>
   )

@@ -138,3 +138,23 @@
   letter-spacing: 0.02em;
   box-shadow: 0 0 0 1px var(--border);
 }
+
+.logout {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--white);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    color 140ms ease;
+}
+
+.logout:hover {
+  border-color: var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+}
