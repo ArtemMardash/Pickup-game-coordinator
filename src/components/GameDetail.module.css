@@ -102,14 +102,6 @@
   padding-top: 2px;
 }
 
-.notice {
-  padding: 9px 12px;
-  border-radius: var(--radius-sm);
-  background: var(--danger-soft);
-  color: #b91c1c;
-  font-size: 13px;
-}
-
 .retry {
   margin-left: 8px;
   padding: 3px 9px;

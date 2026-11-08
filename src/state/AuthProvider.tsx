@@ -1,47 +1,28 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import * as authApi from '../lib/authApi'
-import type { UserProfile } from '../lib/endpoints'
+import {
+  readSession,
+  setUnauthorizedHandler,
+  writeSession,
+} from '../lib/session'
+import type { StoredSession } from '../lib/session'
 import { AuthContext } from './authContext'
 import type { AuthState } from './authContext'
 
-const STORAGE_KEY = 'pickup.auth'
-
-interface StoredSession {
-  token: string
-  /** Epoch milliseconds. */
-  expiresAt: number
-  user: UserProfile
-}
-
-function readSession(): StoredSession | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return null
-    const parsed = JSON.parse(raw) as StoredSession
-    if (!parsed.token || !parsed.user || typeof parsed.expiresAt !== 'number') return null
-    if (parsed.expiresAt <= Date.now()) {
-      localStorage.removeItem(STORAGE_KEY)
-      return null
-    }
-    return parsed
-  } catch {
-    // Corrupt or unreadable storage — treat as signed out rather than crashing.
-    localStorage.removeItem(STORAGE_KEY)
-    return null
-  }
-}
-
-function writeSession(session: StoredSession | null) {
-  if (session === null) {
-    localStorage.removeItem(STORAGE_KEY)
-    return
-  }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(session))
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<StoredSession | null>(readSession)
+
+  const logout = useCallback(() => {
+    writeSession(null)
+    setSession(null)
+  }, [])
+
+  // A rejected token ends the session, so the gate takes over.
+  useEffect(() => {
+    setUnauthorizedHandler(logout)
+    return () => setUnauthorizedHandler(null)
+  }, [logout])
 
   const adopt = useCallback((result: authApi.AuthResult) => {
     const next: StoredSession = {
@@ -66,11 +47,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     [adopt],
   )
-
-  const logout = useCallback(() => {
-    writeSession(null)
-    setSession(null)
-  }, [])
 
   const value = useMemo<AuthState>(
     () => ({

@@ -2,11 +2,14 @@ import { useCallback, useEffect, useState } from 'react'
 import { api } from '../lib/api'
 import { authHeader, endpoints } from '../lib/endpoints'
 import type {
+  CreateGameRequest,
+  CreateGameResponse,
   GameDetail,
   GameFilters,
   GameList,
   GameSummary,
   RosterChangeResponse,
+  UpdateGameRequest,
 } from '../lib/endpoints'
 import { useAuth } from './authContext'
 
@@ -34,6 +37,8 @@ export interface GamesState {
   join: (gameId: number) => Promise<void>
   leave: (gameId: number) => Promise<void>
   remove: (gameId: number) => Promise<void>
+  create: (body: CreateGameRequest) => Promise<number>
+  update: (gameId: number, body: UpdateGameRequest) => Promise<void>
 }
 
 export function useGames(filters: GameFilters = {}): GamesState {
@@ -155,5 +160,45 @@ export function useGames(filters: GameFilters = {}): GamesState {
     [token],
   )
 
-  return { games, joinedIds, status, error, reload, detail, join, leave, remove }
+  const create = useCallback(
+    async (body: CreateGameRequest) => {
+      if (!token) throw new Error('Not signed in')
+      const res = await api<CreateGameResponse>(endpoints.games.create, {
+        method: 'POST',
+        headers: { ...authHeader(token), 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      // Refetch so the new game arrives with the server's ordering and counts.
+      setReloadKey((key) => key + 1)
+      return res.game_id
+    },
+    [token],
+  )
+
+  const update = useCallback(
+    async (gameId: number, body: UpdateGameRequest) => {
+      if (!token) throw new Error('Not signed in')
+      await api<GameDetail>(endpoints.games.update(gameId), {
+        method: 'PATCH',
+        headers: { ...authHeader(token), 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      setReloadKey((key) => key + 1)
+    },
+    [token],
+  )
+
+  return {
+    games,
+    joinedIds,
+    status,
+    error,
+    reload,
+    detail,
+    join,
+    leave,
+    remove,
+    create,
+    update,
+  }
 }

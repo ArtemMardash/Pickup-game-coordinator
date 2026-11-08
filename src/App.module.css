@@ -1,12 +1,18 @@
 .app {
   min-height: 100%;
   background: var(--surface);
+  /* Space reserved for the filter bar; My Games hides the bar, so it sets 0. */
+  --filter-space: var(--filter-height);
+}
+
+.noFilterBar {
+  --filter-space: 0px;
 }
 
 .main {
   max-width: var(--content-max);
   margin: 0 auto;
-  padding: calc(var(--nav-height) + var(--filter-height) + 20px) 28px 28px;
+  padding: calc(var(--nav-height) + var(--filter-space) + 20px) 28px 28px;
 }
 
 .split {
@@ -28,7 +34,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-height: calc(100vh - var(--nav-height) - var(--filter-height) - 82px);
+  max-height: calc(100vh - var(--nav-height) - var(--filter-space) - 82px);
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-width: thin;
@@ -45,8 +51,15 @@
 
 .mapPanel {
   position: sticky;
-  top: calc(var(--nav-height) + var(--filter-height) + 20px);
-  height: calc(100vh - var(--nav-height) - var(--filter-height) - 48px);
+  top: calc(var(--nav-height) + var(--filter-space) + 20px);
+  height: calc(100vh - var(--nav-height) - var(--filter-space) - 48px);
+}
+
+/* Set both offsets explicitly rather than relying on the variable cascade
+   reaching this rule; without the bar the map sits level with the card list. */
+.noFilterBar .mapPanel {
+  top: calc(var(--nav-height) + 20px);
+  height: calc(100vh - var(--nav-height) - 48px);
 }
 
 .sectionHeader {

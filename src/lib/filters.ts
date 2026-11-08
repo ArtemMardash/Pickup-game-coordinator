@@ -24,7 +24,7 @@ export function activeFilterCount(filters: Filters): number {
   )
 }
 
-/** Map the UI's filter shape onto the API's query parameters. */
+/** Map the UI's filter shape onto the API query parameters. */
 export function toQuery(filters: Filters): GameFilters {
   return {
     game_name: filters.sports.length > 0 ? filters.sports : undefined,

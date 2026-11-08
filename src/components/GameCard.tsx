@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { formatStart } from '../lib/format'
 import type { GameSummary } from '../lib/endpoints'
 import { sportEmoji } from '../lib/sport'
@@ -18,6 +19,7 @@ interface GameCardProps {
   joined?: boolean
   onOpen?: () => void
   onEdit?: () => void
+  onDelete?: () => void
 }
 
 function CalendarIcon() {
@@ -63,9 +65,16 @@ function PinIcon() {
   )
 }
 
-export function GameCard({ game, joined = false, onOpen, onEdit }: GameCardProps) {
+export function GameCard({
+  game,
+  joined = false,
+  onOpen,
+  onEdit,
+  onDelete,
+}: GameCardProps) {
   const editable = Boolean(onEdit)
   const emoji = sportEmoji(game.game_name)
+  const [confirming, setConfirming] = useState(false)
 
   const body = (
     <>
@@ -99,15 +108,53 @@ export function GameCard({ game, joined = false, onOpen, onEdit }: GameCardProps
 
       {editable && (
         <div className={styles.editRow}>
-          <Button
-            variant="ghost"
-            onClick={(event) => {
-              event.stopPropagation()
-              onEdit?.()
-            }}
-          >
-            Edit
-          </Button>
+          {confirming ? (
+            <>
+              <span className={styles.confirmText}>Delete this game?</span>
+              <Button
+                variant="ghost"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  setConfirming(false)
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  setConfirming(false)
+                  onDelete?.()
+                }}
+              >
+                Delete
+              </Button>
+            </>
+          ) : (
+            <>
+              {onDelete && (
+                <Button
+                  variant="danger"
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    setConfirming(true)
+                  }}
+                >
+                  Delete
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  onEdit?.()
+                }}
+              >
+                Edit
+              </Button>
+            </>
+          )}
         </div>
       )}
     </>

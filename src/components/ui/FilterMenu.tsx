@@ -10,10 +10,10 @@ export interface FilterOption {
 interface FilterMenuProps {
   label: string
   options: FilterOption[]
-  /** Selected values. Empty means the filter is off. */
+  /** Empty means the filter is off. */
   selected: string[]
   onChange: (next: string[]) => void
-  /** Multi-select keeps the panel open; single-select closes on pick. */
+  /** Single-select closes on pick; multi-select stays open. */
   multiple?: boolean
 }
 

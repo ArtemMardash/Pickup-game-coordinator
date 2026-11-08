@@ -77,7 +77,7 @@ function ActionButton({
     case 'organizer':
       return (
         <Button variant="danger" size="lg" fullWidth onClick={onDelete}>
-          Delete Game
+          Cancel Game
         </Button>
       )
     case 'joined':
@@ -236,12 +236,6 @@ export function GameDetail({
         </span>
         {full && <Pill tone="full">Full</Pill>}
       </div>
-
-      {joinState === 'organizer' && (
-        <p className={styles.notice}>
-          You are organizing this game. Delete it to cancel — organizers cannot leave.
-        </p>
-      )}
 
       <div className={styles.action}>
         <ActionButton
