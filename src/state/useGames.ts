@@ -44,6 +44,23 @@ export function useGames(filters: GameFilters = {}): GamesState {
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
 
+  // Membership doesn't depend on the filters, so it is fetched once per
+  // session rather than on every filter change.
+  useEffect(() => {
+    if (!token) return
+    let active = true
+    fetchJoinedIds(token)
+      .then((ids) => {
+        if (active) setJoinedIds(ids)
+      })
+      .catch(() => {
+        // The feed still works without membership; only the checkmark is lost.
+      })
+    return () => {
+      active = false
+    }
+  }, [token, reloadKey])
+
   const filterKey = JSON.stringify(filters)
 
   useEffect(() => {
@@ -54,15 +71,11 @@ export function useGames(filters: GameFilters = {}): GamesState {
       setStatus('loading')
       setError(null)
       try {
-        const [list, joined] = await Promise.all([
-          api<GameList>(endpoints.games.list(currentFilters), {
-            headers: authHeader(currentToken),
-          }),
-          fetchJoinedIds(currentToken),
-        ])
+        const list = await api<GameList>(endpoints.games.list(currentFilters), {
+          headers: authHeader(currentToken),
+        })
         if (abort.signal.aborted) return
         setGames(list.items)
-        setJoinedIds(joined)
         setStatus('ready')
       } catch (cause) {
         if (abort.signal.aborted) return

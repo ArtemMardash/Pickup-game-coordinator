@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AuthGate } from './components/AuthGate'
 import { FilterBar } from './components/FilterBar'
 import { GameCard } from './components/GameCard'
@@ -6,6 +6,8 @@ import { GameDetail } from './components/GameDetail'
 import type { JoinState } from './components/GameDetail'
 import { MapPanel } from './components/MapPanel'
 import { TopNav } from './components/TopNav'
+import { activeFilterCount, EMPTY_FILTERS, toQuery } from './lib/filters'
+import type { Filters } from './lib/filters'
 import { useAuth } from './state/authContext'
 import type { GameDetail as GameDetailData } from './lib/endpoints'
 import type { Tab } from './types'
@@ -14,7 +16,10 @@ import styles from './App.module.css'
 
 function Dashboard() {
   const { user } = useAuth()
-  const { games, joinedIds, status, error, reload, detail, join, leave, remove } = useGames()
+  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
+  const query = useMemo(() => toQuery(filters), [filters])
+  const { games, joinedIds, status, error, reload, detail, join, leave, remove } =
+    useGames(query)
   const [activeTab, setActiveTab] = useState<Tab>('explore')
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [loaded, setLoaded] = useState<{
@@ -100,7 +105,7 @@ function Dashboard() {
         onTabChange={setActiveTab}
         onCreatePost={() => {}}
       />
-      <FilterBar />
+      <FilterBar filters={filters} onChange={setFilters} />
 
       <main className={styles.main}>
         <div className={styles.split}>
@@ -150,7 +155,20 @@ function Dashboard() {
                   </button>
                 </div>
               ) : games.length === 0 ? (
-                <p className={styles.notice}>No games yet. Create the first one.</p>
+                <div className={styles.notice}>
+                  {activeFilterCount(filters) > 0
+                    ? 'No games match these filters.'
+                    : 'No games yet. Create the first one.'}
+                  {activeFilterCount(filters) > 0 && (
+                    <button
+                      type="button"
+                      className={styles.retry}
+                      onClick={() => setFilters(EMPTY_FILTERS)}
+                    >
+                      Clear filters
+                    </button>
+                  )}
+                </div>
               ) : (
                 games.map((game) => (
                   <GameCard
