@@ -1,3 +1,4 @@
+import { initialsOf } from '../lib/avatar'
 import { useAuth } from '../state/authContext'
 import type { Tab } from '../types'
 import { Button } from './ui/Button'
@@ -7,17 +8,6 @@ interface TopNavProps {
   activeTab: Tab
   onTabChange: (tab: Tab) => void
   onCreatePost: () => void
-}
-
-/** Two letters, e.g. "jerry" → "JE". */
-function initialsOf(name: string): string {
-  const cleaned = name.trim()
-  if (!cleaned) return '?'
-  const parts = cleaned.split(/[\s._-]+/).filter(Boolean)
-  if (parts.length >= 2) {
-    return (parts[0]![0]! + parts[1]![0]!).toUpperCase()
-  }
-  return cleaned.slice(0, 2).toUpperCase()
 }
 
 export function TopNav({ activeTab, onTabChange, onCreatePost }: TopNavProps) {

@@ -256,7 +256,7 @@ export function GameModal({ mode, initial, onSubmit, onClose }: GameModalProps) 
 
               <label className={styles.field}>
                 <span className={styles.label}>
-                  Player Capacity <span className={styles.required}>*</span>
+                  Players Needed <span className={styles.required}>*</span>
                 </span>
                 <input
                   className={`${styles.input} ${errors.capacity ? styles.invalid : ''}`}
@@ -299,7 +299,7 @@ export function GameModal({ mode, initial, onSubmit, onClose }: GameModalProps) 
             </label>
 
             <p className={styles.hint}>
-              Capacity includes you as the organizer.
+              Counts you as one of them.
             </p>
           </div>
 

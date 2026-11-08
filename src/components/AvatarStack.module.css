@@ -1,0 +1,55 @@
+.stack {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatars {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--white);
+  border-radius: 50%;
+  color: var(--white);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+/* Overlap each avatar onto the previous one. */
+.avatar + .avatar {
+  margin-left: -8px;
+}
+
+.overflow {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-left: -8px;
+  border: 2px solid var(--white);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.label {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.empty {
+  font-size: 12.5px;
+  color: var(--text-subtle);
+}

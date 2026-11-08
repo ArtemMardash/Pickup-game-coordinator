@@ -1,6 +1,7 @@
 import { formatRange } from '../lib/format'
 import { sportEmoji } from '../lib/sport'
 import type { GameDetail as GameDetailData } from '../lib/endpoints'
+import { AvatarStack } from './AvatarStack'
 import { Button } from './ui/Button'
 import { Pill } from './ui/Pill'
 import styles from './GameDetail.module.css'
@@ -236,6 +237,8 @@ export function GameDetail({
         </span>
         {full && <Pill tone="full">Full</Pill>}
       </div>
+
+      <AvatarStack participants={game.participants} />
 
       <div className={styles.action}>
         <ActionButton
