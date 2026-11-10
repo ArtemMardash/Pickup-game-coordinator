@@ -137,6 +137,8 @@ Ordered by what to do first. Items 1-4 come from the latest review.
 
 ### 1. Games must not start in the past (backend + form)
 
+Status: deferred; not implemented.
+
 - **Now:** only `end_time` must be in the future, so a game that already
   started can be posted (the server calls it `active`).
 - **Change:** on create, require `start_time` to be at or after "now" (allow a
@@ -191,10 +193,14 @@ is picked and the end is still empty, the end is filled with start + 1 hour.
 Language is a single-choice list (English, Spanish, Mandarin, French,
 Portuguese, Other).
 
-Planned improvements (my reading of the feedback; confirm the "timer" point):
+Decisions (2026-11-10): "the timer" means the start and end date-time pickers.
+Games keep a single language. No changes are being made for now; the current
+behavior is accepted as is, and the list below is the backlog.
 
-- **Date and time picking.** "The timer is not good" is read as the native
-  date-time picker being awkward. Options: separate date and time fields with
+Backlog:
+
+- **Date and time picking.** The native date-time pickers for game start and
+  game end are awkward. Options: separate date and time fields with
   15-minute steps, a small custom picker, or quick presets ("Today 6 PM",
   "Tomorrow 10 AM"). Default the start to the next round hour.
 - **End follows start.** The end is only auto-set when it is empty. Make it
@@ -203,11 +209,10 @@ Planned improvements (my reading of the feedback; confirm the "timer" point):
   limit message friendly.
 - **Show the length.** Display "2 h" between the two times so a wrong date is
   obvious.
-- **Languages.** Today a game has exactly one language, matching the plan's
+- **Languages.** Decided: a game has exactly one language, matching the plan's
   example. Multiple languages would change the database (a list instead of a
-  single value), the filter (match any overlap) and the cards. Recommendation:
-  keep one language for the MVP, but let "Other" take a typed value. Needs a
-  decision.
+  single value), the filter (match any overlap) and the cards, so they are out
+  of scope. Optional later tweak: let "Other" take a typed value.
 - **Smaller wins:** remember the last sport, skill level and capacity; warn
   before closing a half-filled form.
 - **Own games hidden in Explore.** Intentional (see section 2.5), but it can
