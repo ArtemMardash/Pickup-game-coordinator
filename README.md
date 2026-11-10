@@ -5,10 +5,13 @@ Dashboard for discovering, organizing, and joining local pickup sports games.
 - **Frontend:** React + Vite, in the repo root (http://localhost:5173)
 - **Backend:** FastAPI + PostgreSQL, in `backend/` (http://localhost:8000)
 
+For how everything works today, what is done, and what is left, see
+[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md).
+
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) 22+
-- [Python](https://www.python.org/) 3.13
+- [Node.js](https://nodejs.org/) 22.12 or newer (Vite warns on older versions)
+- [Python](https://www.python.org/) 3.12 or newer (tested on 3.12; the backend README says 3.13)
 - [Docker](https://www.docker.com/products/docker-desktop/) (runs the local PostgreSQL 17 database)
 
 ## Quick start
@@ -67,6 +70,14 @@ npm install
 npm run dev                          # http://localhost:5173
 ```
 
+Open http://localhost:5173, register an account, and create a game (it shows
+under **My Games**; other users see it in **Explore**). If `npm run dev` or
+`npm run build` fails with `Cannot find native binding`, see
+[Troubleshooting](#troubleshooting): it is a known npm bug with a one-line fix.
+
+The Google Maps key in `.env` is optional. Without it the map shows a
+placeholder and games get no pin; everything else works.
+
 ### Stopping
 
 Stop each dev server with `Ctrl+C`. Stop the database with
@@ -85,6 +96,8 @@ Both `.env` files are gitignored. Copy the `.env.example` next to each one.
 | `backend/.env` | `ACCESS_TOKEN_EXPIRE_MINUTES` | Login token lifetime (default 30) |
 | `backend/.env` | `CORS_ORIGINS` | Comma-separated frontend origins the API accepts |
 | `.env` | `VITE_API_URL` | Backend URL used by the frontend (`src/lib/api.ts`) |
+| `.env` | `VITE_GOOGLE_MAPS_API_KEY` | Optional. Enables the map, pins and address lookup. The key is visible in the browser, so restrict it in Google Cloud (HTTP referrer `http://localhost:5173/*`; Maps JavaScript, Places (New) and Geocoding APIs) |
+| `.env` | `VITE_GOOGLE_MAPS_MAP_ID` | Optional. Cloud-styled Map ID; defaults to Google's demo ID |
 
 If you change the frontend port or URL, update `CORS_ORIGINS` to match. If
 you change `DB_PASSWORD` after the database was first created, the existing
@@ -140,8 +153,8 @@ Things the frontend model has to change to match the backend:
 
 ## Troubleshooting
 
-- **`Cannot find native binding` from `npm run dev` or `npm run lint` on
-  Windows:** npm skipped an optional native package (a known npm bug). Install
+- **`Cannot find native binding` from `npm run dev`, `npm run build` or
+  `npm run lint` on Windows (seen on a fresh clone):** npm skipped an optional native package (a known npm bug). Install
   the one named in the error without saving it, matching the installed
   version of the tool (see its `package.json` in `node_modules`):
   `npm install --no-save @rolldown/binding-win32-x64-msvc@<version>` for dev/build,
@@ -163,15 +176,16 @@ Things the frontend model has to change to match the backend:
 ## Structure
 
 ```
-src/App.tsx             App shell and split layout
-src/types.ts            Domain types and sport catalogue
-src/data/seed.ts        Sample games
-src/state/useGames.ts   Game data access
-src/lib/                Formatting, derived helpers, API client
+src/App.tsx             App shell: tabs, list, detail view, create/edit modal
+src/types.ts            Sport and language catalogues
+src/state/              Auth (AuthProvider) and game data (useGames)
+src/lib/api.ts          Fetch wrapper (errors, sign-out on 401)
 src/lib/endpoints.ts    Backend endpoint paths and request/response types
-src/components/         Feature components
-src/components/ui/      Button, Pill, Combobox, FillMeter
+src/lib/                Auth, session, filters, form validation, dates, map helpers
+src/components/         Feature components (AuthGate, GameCard, GameDetail, GameModal, map)
+src/components/ui/      Button, Pill, Combobox, FillMeter, FilterMenu
 backend/                FastAPI service, migrations, docker-compose.yml
+docs/PROJECT_STATUS.md  How it works, what is done, what is left
 ```
 
 Plain CSS Modules over the tokens in `src/index.css`. No UI framework.
