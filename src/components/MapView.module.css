@@ -1,0 +1,90 @@
+/* MAP FEATURE (new file) */
+.inline {
+  position: relative;
+  height: 100%;
+}
+
+/* Fills the content area under the nav and (on Explore) the filter bar.
+   --filter-space is set on .app in App.module.css. z-index 20 sits below the
+   nav (40) and filter bar (30) so their menus and search suggestions stay
+   usable while the map is expanded. */
+.overlay {
+  position: fixed;
+  inset: calc(var(--nav-height) + var(--filter-space, 0px)) 0 0 0;
+  z-index: 20;
+  display: flex;
+  gap: 16px;
+  padding: 16px 28px 20px;
+  background: var(--surface);
+  overscroll-behavior: contain;
+}
+
+.mapSlot {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 0 0 380px;
+  min-height: 0;
+}
+
+.sidebarHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebarTitle {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.sidebarNote {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.sidebarList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  padding-right: 4px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.sidebarEmpty {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.toggle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 7;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--white);
+  box-shadow: var(--shadow-md);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+}

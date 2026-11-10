@@ -1,0 +1,162 @@
+/* MAP FEATURE (new file). Trigger styles copy FilterMenu so it matches. */
+.wrapper {
+  position: relative;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 12px 0 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--white);
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease;
+}
+
+.trigger:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  background: var(--surface);
+}
+
+.trigger:disabled {
+  color: var(--text-subtle);
+  cursor: not-allowed;
+}
+
+.triggerActive,
+.triggerActive:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--text-subtle);
+  transition: transform 140ms ease;
+}
+
+.triggerActive .chevron {
+  color: var(--accent-strong);
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 35;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 300px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  box-shadow: var(--shadow-lg);
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.distances {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.legend {
+  float: left;
+  align-self: center;
+  margin-right: 8px;
+  padding: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.distance {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.distance:focus-within {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
+.distanceOn {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.message {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--danger);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.clear {
+  margin-right: auto;
+  padding: 7px 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.clear:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.apply {
+  padding: 7px 16px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--accent-strong);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.apply:hover {
+  background: #0369a1;
+}
