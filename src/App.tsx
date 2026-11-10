@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { AreaSearch } from './components/AreaSearch' // MAP FEATURE
+import type { AreaSearchEvent } from './components/AreaSearch' // MAP FEATURE
 import { AuthGate } from './components/AuthGate'
 import { FilterBar } from './components/FilterBar'
 import { GameCard } from './components/GameCard'
@@ -6,15 +8,17 @@ import { GameDetail } from './components/GameDetail'
 import type { JoinState } from './components/GameDetail'
 import { GameModal } from './components/GameModal'
 import type { ModalMode } from './components/GameModal'
-import { MapPanel } from './components/MapPanel'
+import { MapView } from './components/MapView' // MAP FEATURE: replaces MapPanel here
 import { TopNav } from './components/TopNav'
 import { activeFilterCount, EMPTY_FILTERS, toQuery } from './lib/filters'
 import type { Filters } from './lib/filters'
 import { localInputToIso } from './lib/datetime'
+import { coordinatesForPost } from './lib/geocode' // MAP FEATURE
 import type { GameFormValues } from './lib/gameForm'
 import { useAuth } from './state/authContext'
 import type { GameDetail as GameDetailData } from './lib/endpoints'
 import type { Tab } from './types'
+import { useFilterOptions } from './state/useFilterOptions' // MAP FEATURE
 import { useGames } from './state/useGames'
 import styles from './App.module.css'
 
@@ -43,6 +47,7 @@ function Dashboard() {
     status,
     error,
     reload,
+    version, // MAP FEATURE
     detail,
     join,
     leave,
@@ -50,6 +55,10 @@ function Dashboard() {
     create,
     update,
   } = useGames(query)
+  // MAP FEATURE (S10.1 / S10.4): filter menus list what is actually posted.
+  const filterOptions = useFilterOptions(version)
+  // MAP FEATURE (F9): the latest search-bar search; the map moves to it.
+  const [area, setArea] = useState<AreaSearchEvent | null>(null)
   const [activeTab, setActiveTab] = useState<Tab>('explore')
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [modal, setModal] = useState<{ mode: ModalMode; game: GameDetailData | null } | null>(
@@ -172,7 +181,15 @@ function Dashboard() {
   }
 
   async function submitModal(values: GameFormValues) {
-    const body = toRequestBody(values)
+    // MAP FEATURE: geocode the address once, when the post is saved, so it can
+    // be pinned. On edit this also re-sends the existing coordinates, because
+    // the backend clears them whenever `location` is sent without any.
+    // Never blocks saving: a post that can't be geocoded just has no pin.
+    const coords = await coordinatesForPost(
+      values.location,
+      modal?.mode === 'edit' ? modal.game : null,
+    )
+    const body = { ...toRequestBody(values), ...coords }
     if (modal?.mode === 'edit' && modal.game) {
       await update(modal.game.game_id, body)
       if (selectedId === modal.game.game_id) await load(modal.game.game_id)
@@ -188,8 +205,16 @@ function Dashboard() {
         activeTab={activeTab}
         onTabChange={changeTab}
         onCreatePost={() => setModal({ mode: 'create', game: null })}
+        search={<AreaSearch onSearch={setArea} />} // MAP FEATURE (F9)
       />
-      {activeTab === 'explore' && <FilterBar filters={filters} onChange={setFilters} />}
+      {activeTab === 'explore' && (
+        <FilterBar
+          filters={filters}
+          onChange={setFilters}
+          availableSports={filterOptions?.sports} // MAP FEATURE
+          availableLanguages={filterOptions?.languages} // MAP FEATURE
+        />
+      )}
 
       <main className={styles.main}>
         <div className={styles.split}>
@@ -291,7 +316,18 @@ function Dashboard() {
           </section>
 
           <section className={styles.mapPanel} aria-label="Map">
-            <MapPanel />
+            {/* MAP FEATURE: Google Map (compact here, expandable). Gets the same
+                list the cards use, so pins and cards always match (S10.5). */}
+            <MapView
+              games={visibleGames}
+              joinedIds={joinedIds}
+              loading={status === 'loading'}
+              area={area}
+              radius={filters.location}
+              filtersActive={activeFilterCount(filters) > 0}
+              onClearFilters={() => setFilters({ ...EMPTY_FILTERS, sort: filters.sort })}
+              onOpenGame={setSelectedId}
+            />
           </section>
         </div>
       </main>

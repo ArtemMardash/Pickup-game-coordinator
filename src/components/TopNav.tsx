@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react' // MAP FEATURE
 import { initialsOf } from '../lib/avatar'
 import { useAuth } from '../state/authContext'
 import type { Tab } from '../types'
@@ -8,9 +9,14 @@ interface TopNavProps {
   activeTab: Tab
   onTabChange: (tab: Tab) => void
   onCreatePost: () => void
+  /**
+   * MAP FEATURE (F9): a working search bar shown in place of the built-in
+   * one below, which only rendered an input and did nothing.
+   */
+  search?: ReactNode
 }
 
-export function TopNav({ activeTab, onTabChange, onCreatePost }: TopNavProps) {
+export function TopNav({ activeTab, onTabChange, onCreatePost, search }: TopNavProps) {
   const { user, logout } = useAuth()
   return (
     <header className={styles.nav}>
@@ -40,7 +46,10 @@ export function TopNav({ activeTab, onTabChange, onCreatePost }: TopNavProps) {
         </button>
       </nav>
 
-      <div className={styles.search}>
+      {search}
+      {/* MAP FEATURE: the original (inert) search field is hidden when a real
+          search bar is passed in. Left in place so this diff stays small. */}
+      <div className={styles.search} style={search ? { display: 'none' } : undefined}>
         <div className={styles.searchField}>
           <svg
             className={styles.searchIcon}

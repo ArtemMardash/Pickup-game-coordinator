@@ -33,6 +33,9 @@ export interface GamesState {
   status: 'loading' | 'ready' | 'error'
   error: string | null
   reload: () => void
+   /** MAP FEATURE: bumps whenever the list is refetched after a change, so
+   *  the filter menus know to refresh their options. */
+  version: number
   detail: (gameId: number) => Promise<GameDetail>
   join: (gameId: number) => Promise<void>
   leave: (gameId: number) => Promise<void>
@@ -194,6 +197,7 @@ export function useGames(filters: GameFilters = {}): GamesState {
     status,
     error,
     reload,
+    version: reloadKey, // MAP FEATURE
     detail,
     join,
     leave,

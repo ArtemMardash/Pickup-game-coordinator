@@ -1,6 +1,16 @@
 import styles from './MapPanel.module.css'
 
-export function MapPanel() {
+// MAP FEATURE: optional text so it can serve as the "no API key" fallback.
+// With no props it renders exactly what it did before.
+interface MapPanelProps {
+  title?: string
+  subtitle?: string
+}
+
+export function MapPanel({
+  title = 'Map View Placeholder',
+  subtitle = 'Interactive map lands in a later release',
+}: MapPanelProps) {
   return (
     <div className={styles.map}>
       <svg
@@ -63,8 +73,8 @@ export function MapPanel() {
             <circle cx="10" cy="8.4" r="2.1" stroke="currentColor" strokeWidth="1.7" />
           </svg>
         </span>
-        <span className={styles.title}>Map View Placeholder</span>
-        <span className={styles.subtitle}>Interactive map lands in a later release</span>
+        <span className={styles.title}>{title}</span>
+        <span className={styles.subtitle}>{subtitle}</span>
       </div>
     </div>
   )
